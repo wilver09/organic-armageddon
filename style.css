@@ -1,0 +1,213 @@
+:root {
+  --bg: #0b0f0e;
+  --bg-hot: #160c0a;
+  --bg-cool: #0a1412;
+  --parchment: #e8e2d6;
+  --parchment-dim: #a39d92;
+  --ember: #c1442e;
+  --ember-dim: #7a2c1f;
+  --teal: #2f7268;
+  --teal-dim: #1c4a47;
+  --border: rgba(232, 226, 214, 0.12);
+  --serif: 'Fraunces', serif;
+  --sans: 'IBM Plex Sans', sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; animation: none !important; }
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--parchment);
+  font-family: var(--sans);
+  line-height: 1.6;
+  transition: background-color 0.8s ease;
+}
+
+body.temp-hot { background-color: var(--bg-hot); }
+body.temp-cool { background-color: var(--bg-cool); }
+
+a { color: inherit; }
+
+/* Hero */
+
+.hero {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  position: relative;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 30%, rgba(193, 68, 46, 0.16), transparent 70%),
+    radial-gradient(ellipse 60% 50% at 50% 90%, rgba(47, 114, 104, 0.14), transparent 70%);
+}
+
+.hero-inner { max-width: 640px; }
+
+.hero-eyebrow {
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  color: var(--parchment-dim);
+  margin: 0 0 1.25rem;
+}
+
+.hero-title {
+  font-family: var(--serif);
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-size: clamp(3rem, 9vw, 6rem);
+  line-height: 0.98;
+  margin: 0 0 1.5rem;
+  letter-spacing: -0.01em;
+}
+
+.hero-sub {
+  font-size: 1.15rem;
+  color: var(--parchment-dim);
+  max-width: 32ch;
+  margin: 0 auto;
+}
+
+.hero-scroll {
+  position: absolute;
+  bottom: 2.5rem;
+  font-size: 1.3rem;
+  color: var(--parchment-dim);
+  animation: drift 2.4s ease-in-out infinite;
+}
+
+@keyframes drift {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50% { transform: translateY(8px); opacity: 1; }
+}
+
+/* Intro */
+
+.intro {
+  max-width: 60ch;
+  margin: 0 auto;
+  padding: 6rem 2rem;
+  text-align: center;
+}
+
+.intro p {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(1.3rem, 2.4vw, 1.7rem);
+  line-height: 1.5;
+  color: var(--parchment);
+}
+
+/* Phases */
+
+.phase {
+  padding: 5rem 2rem;
+  border-top: 1px solid var(--border);
+}
+
+.phase-frame {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+.phase-frame.reverse {
+  grid-template-columns: 1fr 1.1fr;
+}
+
+.phase-frame.reverse .phase-media { order: 2; }
+.phase-frame.reverse .phase-text { order: 1; }
+
+.phase-media.placeholder {
+  aspect-ratio: 4 / 5;
+  border-radius: 2px;
+  border: 1px dashed var(--border);
+  background:
+    linear-gradient(160deg, rgba(232,226,214,0.03), rgba(232,226,214,0.01));
+}
+
+.phase[data-temp="hot"] .phase-media.placeholder {
+  border-color: rgba(193, 68, 46, 0.3);
+}
+.phase[data-temp="cool"] .phase-media.placeholder {
+  border-color: rgba(47, 114, 104, 0.3);
+}
+
+.phase-index {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--parchment-dim);
+  margin-bottom: 0.75rem;
+}
+
+.phase[data-temp="hot"] .phase-index { color: var(--ember); }
+.phase[data-temp="cool"] .phase-index { color: var(--teal); }
+
+.phase-text h2 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  margin: 0 0 1rem;
+}
+
+.phase-text p {
+  color: var(--parchment-dim);
+  font-size: 1.05rem;
+  max-width: 42ch;
+}
+
+@media (max-width: 780px) {
+  .phase-frame,
+  .phase-frame.reverse {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .phase-frame.reverse .phase-media,
+  .phase-frame.reverse .phase-text {
+    order: initial;
+  }
+}
+
+/* Footer */
+
+.site-footer {
+  padding: 5rem 2rem 4rem;
+  text-align: center;
+  border-top: 1px solid var(--border);
+}
+
+.footer-title {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  margin: 0 0 0.5rem;
+}
+
+.footer-note {
+  color: var(--parchment-dim);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* Focus visibility */
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--parchment);
+  outline-offset: 3px;
+}
