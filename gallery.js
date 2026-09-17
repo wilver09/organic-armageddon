@@ -1,14 +1,12 @@
-// gallery.js (v2 — adds featured/hero support)
-// Renders artworks.json: any entry with "featured": true gets a hero
-// treatment above the phase grid; everything else groups by phase as before.
+// gallery.js (v3 — adds formatted phase labels and clean rendering)
 
-const PHASE_ORDER = [
-  "Pollution",
-  "Overpopulation",
-  "Bacteria",
-  "Abandonment",
-  "Succession",
-  "Restoration"
+const PHASE_CONFIG = [
+  { name: "Pollution", label: "Phase One: Pollution" },
+  { name: "Overpopulation", label: "Phase Two: Overpopulation" },
+  { name: "Bacteria", label: "Phase Three: Bacteria" },
+  { name: "Abandonment", label: "Phase Four: Abandonment" },
+  { name: "Succession", label: "Phase Five: Succession" },
+  { name: "Restoration", label: "Phase Six: Restoration" }
 ];
 
 async function loadGallery() {
@@ -36,6 +34,7 @@ async function loadGallery() {
     const img = document.createElement("img");
     img.src = piece.file;
     img.alt = piece.title || "Featured piece";
+    img.loading = "eager";
 
     const caption = document.createElement("div");
     caption.className = "featured-caption";
@@ -51,19 +50,19 @@ async function loadGallery() {
     container.appendChild(hero);
   });
 
-  // --- Phase-grouped grid (featured pieces excluded here) ---
+  // --- Phase-grouped grid (featured pieces excluded) ---
   const rest = artworks.filter((a) => !a.featured);
 
-  PHASE_ORDER.forEach((phase) => {
-    const pieces = rest.filter((a) => a.phase === phase);
+  PHASE_CONFIG.forEach(({ name, label }) => {
+    const pieces = rest.filter((a) => a.phase === name);
     if (pieces.length === 0) return;
 
     const section = document.createElement("section");
     section.className = "phase-section";
-    section.id = phase.toLowerCase();
+    section.id = name.toLowerCase();
 
     const heading = document.createElement("h2");
-    heading.textContent = phase;
+    heading.textContent = label;
     section.appendChild(heading);
 
     const grid = document.createElement("div");
@@ -75,7 +74,7 @@ async function loadGallery() {
 
       const img = document.createElement("img");
       img.src = piece.file;
-      img.alt = piece.title || phase;
+      img.alt = piece.title || name;
       img.loading = "lazy";
 
       const caption = document.createElement("figcaption");
