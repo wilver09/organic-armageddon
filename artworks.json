@@ -1,0 +1,36 @@
+[
+  { "file": "images/Vegas_to_heaven.png", "title": "Vegas to Heaven", "phase": "Pollution/Restoration", "featured": true, "caption": "A diptych spanning the series' full arc — hell and heaven, side by side." },
+
+  { "file": "images/amphibianjudgement.png", "title": "Amphibian Judgement", "phase": "Pollution" },
+  { "file": "images/grain2.png", "title": "Grain", "phase": "Pollution" },
+  { "file": "images/jin_and_Spector.png", "title": "Jin and Spector", "phase": "Pollution" },
+
+  { "file": "images/boundary5.png", "title": "Boundary", "phase": "Overpopulation" },
+  { "file": "images/front.png", "title": "Front", "phase": "Overpopulation" },
+  { "file": "images/ghost_Island.png", "title": "Ghost Island", "phase": "Overpopulation" },
+
+  { "file": "images/5apparitions.png", "title": "5 Apparitions", "phase": "Bacteria" },
+  { "file": "images/divers.png", "title": "Divers", "phase": "Bacteria" },
+  { "file": "images/gardindechats.png", "title": "Jardin des Chats", "phase": "Bacteria" },
+  { "file": "images/hybrid.png", "title": "Hybrid", "phase": "Bacteria" },
+  { "file": "images/koi2.png", "title": "Koi", "phase": "Bacteria" },
+  { "file": "images/Mont_mare.png", "title": "Mont Mare", "phase": "Bacteria" },
+  { "file": "images/only_one.png", "title": "Only One", "phase": "Bacteria" },
+  { "file": "images/squiward3.png", "title": "Squiward", "phase": "Bacteria" },
+  { "file": "images/trance4.png", "title": "Trance", "phase": "Bacteria" },
+
+  { "file": "images/California2.png", "title": "California II", "phase": "Abandonment" },
+  { "file": "images/duality2.png", "title": "Duality", "phase": "Abandonment" },
+  { "file": "images/respit2.png", "title": "Respite", "phase": "Abandonment" },
+  { "file": "images/risk.png", "title": "Risk", "phase": "Abandonment" },
+  { "file": "images/wanderers.png", "title": "Wanderers", "phase": "Abandonment" },
+
+  { "file": "images/0802b.png", "title": "0802b", "phase": "Succession" },
+  { "file": "images/jungle_scene.png", "title": "Jungle Scene", "phase": "Succession" },
+  { "file": "images/owl_line.png", "title": "Owl Line", "phase": "Succession" },
+
+  { "file": "images/California.png", "title": "California", "phase": "Restoration" },
+  { "file": "images/mountain_flying.png", "title": "Mountain Flying", "phase": "Restoration" },
+  { "file": "images/ratduckgator.png", "title": "Ratduckgator", "phase": "Restoration" },
+  { "file": "images/skyeyes.png", "title": "Sky Eyes", "phase": "Restoration" }
+]
