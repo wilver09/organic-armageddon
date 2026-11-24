@@ -1,41 +1,664 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Organic Armageddon — Willi</title>
-<meta name="description" content="A digital art series in six phases: Pollution, Overpopulation, Bacteria, Abandonment, Succession, Restoration.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="gallery.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Organic Armageddon — Interactive Exhibition</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    /* Base typography and smooth scrolling */
+    html {
+      scroll-behavior: smooth;
+      font-family: 'Inter', sans-serif;
+      background-color: #160812;
+      color: #e5e5e5;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background-color: #160812;
+      transition: background-color 0.8s ease;
+    }
+
+    .serif-display {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+    }
+
+    /* Sticky Phase Timeline Scrubber */
+    .phase-nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(22, 8, 18, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(46, 179, 152, 0.22);
+    }
+
+    .phase-link {
+      position: relative;
+      transition: color 0.25s ease;
+    }
+
+    .phase-link::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -2px;
+      height: 2px;
+      background: #2eb398;
+      transform: scaleX(0);
+      transform-origin: center;
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .phase-link.active {
+      color: #ffffff;
+    }
+
+    .phase-link.active::after {
+      transform: scaleX(1);
+    }
+
+    /* Artwork cards */
+    .art-piece {
+      cursor: zoom-in;
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.28s ease;
+    }
+
+    .art-piece:hover {
+      transform: translateY(-4px);
+    }
+
+    .art-piece img {
+      transition: filter 0.35s ease;
+    }
+
+    .art-piece:hover img {
+      filter: brightness(1.06);
+    }
+
+    /* Deep-Zoom Lightbox */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(12, 4, 10, 0.97);
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s ease;
+      user-select: none;
+      touch-action: none;
+    }
+
+    .lightbox.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .lb-stage {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      cursor: grab;
+    }
+
+    .lb-stage.dragging {
+      cursor: grabbing;
+    }
+
+    .lb-stage img {
+      max-width: 90vw;
+      max-height: 78vh;
+      object-fit: contain;
+      transform-origin: center center;
+      transition: transform 0.08s ease-out;
+      will-change: transform;
+      border-radius: 4px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+    }
+
+    .lb-footer {
+      transition: opacity 0.22s ease, transform 0.22s ease;
+    }
+
+    .lb-footer.hidden-on-zoom {
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+    }
+  </style>
 </head>
-<body>
+<body class="antialiased selection:bg-teal-500/30 selection:text-teal-200">
 
-<header class="hero">
-  <div class="hero-inner">
-    <p class="hero-eyebrow">A digital art series</p>
-    <h1 class="hero-title">Organic<br>Armageddon</h1>
-    <p class="hero-sub">Six phases of a world consuming and remaking itself — from the first spill to the last green shoot.</p>
-  </div>
-  <div class="hero-scroll" aria-hidden="true">↓</div>
-</header>
+  <!-- Exhibition Header -->
+  <header class="max-w-7xl mx-auto px-4 sm:px-8 pt-10 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-teal-500/20">
+    <div>
+      <p class="text-xs uppercase tracking-[0.25em] text-[#3cd0b2] mb-2">Studio Archive &bull; Surrealist Cycle</p>
+      <h1 class="serif-display text-4xl sm:text-5xl font-semibold tracking-tight text-neutral-100">
+        Organic Armageddon
+      </h1>
+    </div>
+    <div class="flex flex-wrap items-center gap-3 text-xs text-neutral-300">
+      <span class="px-2.5 py-1 rounded-full bg-[#240d1e] border border-teal-500/30">6 Ecological Phases</span>
+      <span id="total-works-badge" class="px-2.5 py-1 rounded-full bg-[#240d1e] border border-teal-500/30">28 Works</span>
+      <span class="hidden sm:inline text-neutral-400">Click any piece for Deep-Zoom Loupe</span>
+    </div>
+  </header>
 
-<section class="intro">
-  <p>Every piece in this series is a scene from the same world, moving through six stages of collapse and return. Some are grotesque, some are quiet. None of them are the end of the story.</p>
-</section>
+  <!-- Main Exhibition Container (Populated by gallery.js) -->
+  <main id="gallery" class="max-w-7xl mx-auto px-4 sm:px-8 py-8"></main>
 
-<main>
-  <div id="gallery"></div>
-</main>
+  <!-- Footer -->
+  <footer class="max-w-7xl mx-auto px-4 sm:px-8 py-12 mt-12 border-t border-teal-500/20 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-neutral-400">
+    <p>&copy; Organic Armageddon &bull; Studio Archive</p>
+    <p>Shortcuts in Lightbox: <kbd class="px-1.5 py-0.5 bg-[#240d1e] border border-teal-500/25 text-neutral-200 rounded">←</kbd> <kbd class="px-1.5 py-0.5 bg-[#240d1e] border border-teal-500/25 text-neutral-200 rounded">→</kbd> Step &bull; <kbd class="px-1.5 py-0.5 bg-[#240d1e] border border-teal-500/25 text-neutral-200 rounded">Scroll / Double-Click</kbd> Zoom &bull; <kbd class="px-1.5 py-0.5 bg-[#240d1e] border border-teal-500/25 text-neutral-200 rounded">Esc</kbd> Close</p>
+  </footer>
 
-<footer class="site-footer">
-  <p class="footer-title">Organic Armageddon</p>
-  <p class="footer-note">A living series — new pieces added as they're finished.</p>
-</footer>
+  <script>
+    // =========================================================================
+    // 1. EXHIBITION CONFIGURATION
+    // =========================================================================
+    const PHASE_ORDER = [
+      "Pollution",
+      "Overpopulation",
+      "Bacteria",
+      "Abandonment",
+      "Succession",
+      "Restoration"
+    ];
 
-<script src="gallery.js" defer></script>
-<script src="script.js" defer></script>
+    // Subtle dark-magenta ambient shifts per ecological phase
+    const PHASE_AMBIENT = {
+      "Pollution": "#180813",
+      "Overpopulation": "#1b0915",
+      "Bacteria": "#150914",
+      "Abandonment": "#130813",
+      "Succession": "#140a14",
+      "Restoration": "#140b15"
+    };
+
+    // =========================================================================
+    // 2. GALLERY RENDERING & INTERACTIVE STATE
+    // =========================================================================
+    let orderedPieces = [];
+    let currentIndex = 0;
+
+    // Loupe transform state
+    let scale = 1;
+    let translateX = 0;
+    let translateY = 0;
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+
+    // Fallback manifest used automatically when previewing inside Canvas (blob:)
+    const SANDBOX_FALLBACK = [
+      { "file": "images/Vegas_to_heaven.png", "title": "Vegas to Heaven", "phase": "Pollution/Restoration", "featured": true, "caption": "A diptych spanning the series' full arc — hell and heaven, side by side." },
+      { "file": "images/amphibianjudgement.png", "title": "Amphibian Judgement", "phase": "Pollution" },
+      { "file": "images/grain2.png", "title": "Grain", "phase": "Pollution" },
+      { "file": "images/jin_and_Spector.png", "title": "Jin and Spector", "phase": "Pollution" },
+      { "file": "images/boundary5.png", "title": "Boundary", "phase": "Overpopulation" },
+      { "file": "images/front.png", "title": "Front", "phase": "Overpopulation" },
+      { "file": "images/ghost_Island.png", "title": "Ghost Island", "phase": "Overpopulation" },
+      { "file": "images/5apparitions.png", "title": "5 Apparitions", "phase": "Bacteria" },
+      { "file": "images/divers.png", "title": "Divers", "phase": "Bacteria" },
+      { "file": "images/gardindechats.png", "title": "Jardin des Chats", "phase": "Bacteria" },
+      { "file": "images/hybrid.png", "title": "Hybrid", "phase": "Bacteria" },
+      { "file": "images/koi2.png", "title": "Koi", "phase": "Bacteria" },
+      { "file": "images/Mont_mare.png", "title": "Mont Mare", "phase": "Bacteria" },
+      { "file": "images/only_one.png", "title": "Only One", "phase": "Bacteria" },
+      { "file": "images/squiward3.png", "title": "Squiward", "phase": "Bacteria" },
+      { "file": "images/trance4.png", "title": "Trance", "phase": "Bacteria" },
+      { "file": "images/California2.png", "title": "California II", "phase": "Abandonment" },
+      { "file": "images/duality2.png", "title": "Duality", "phase": "Abandonment" },
+      { "file": "images/respit2.png", "title": "Respite", "phase": "Abandonment" },
+      { "file": "images/risk.png", "title": "Risk", "phase": "Abandonment" },
+      { "file": "images/wanderers.png", "title": "Wanderers", "phase": "Abandonment" },
+      { "file": "images/0802b.png", "title": "0802b", "phase": "Succession" },
+      { "file": "images/jungle_scene.png", "title": "Jungle Scene", "phase": "Succession" },
+      { "file": "images/owl_line.png", "title": "Owl Line", "phase": "Succession" },
+      { "file": "images/California.png", "title": "California", "phase": "Restoration" },
+      { "file": "images/mountain_flying.png", "title": "Mountain Flying", "phase": "Restoration" },
+      { "file": "images/ratduckgator.png", "title": "Ratduckgator", "phase": "Restoration" },
+      { "file": "images/skyeyes.png", "title": "Sky Eyes", "phase": "Restoration" }
+    ];
+
+    // Generates a dark-magenta & tourmaline placeholder plate when local images aren't accessible
+    function buildSandboxPlate(piece) {
+      const w = piece.featured ? 1200 : 600;
+      const h = piece.featured ? 460 : 750;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+        <rect width="100%" height="100%" fill="#1e0b19"/>
+        <rect x="16" y="16" width="${w - 32}" height="${h - 32}" fill="none" stroke="#2eb398" stroke-opacity="0.35" stroke-width="1.5" rx="6"/>
+        <circle cx="${w / 2}" cy="${h / 2 - 14}" r="36" fill="none" stroke="#3cd0b2" stroke-opacity="0.45" stroke-width="1.5"/>
+        <text x="50%" y="${h / 2 + 46}" fill="#e5e5e5" font-family="Georgia, serif" font-size="${piece.featured ? 26 : 19}" text-anchor="middle">${piece.title}</text>
+        <text x="50%" y="${h / 2 + 72}" fill="#3cd0b2" font-family="sans-serif" font-size="11" letter-spacing="2" text-anchor="middle">${piece.file}</text>
+      </svg>`;
+      return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+    }
+
+    async function initGallery() {
+      const container = document.getElementById("gallery");
+      if (!container) return;
+
+      const isSandbox = window.location.protocol === "blob:" || window.location.protocol === "file:";
+      let artworks;
+
+      if (isSandbox) {
+        artworks = SANDBOX_FALLBACK;
+      } else {
+        try {
+          const res = await fetch("artworks.json");
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          artworks = await res.json();
+        } catch (err) {
+          container.innerHTML = `
+            <div class="p-6 rounded-xl bg-[#220c1c] border border-teal-500/30 text-center max-w-lg mx-auto my-12">
+              <p class="text-neutral-100 font-medium mb-2">Could not load artworks.json</p>
+              <p class="text-xs text-neutral-300">Verify <code>artworks.json</code> is in the same folder as <code>index.html</code>.</p>
+            </div>
+          `;
+          console.error("Failed to load artworks.json:", err);
+          return;
+        }
+      }
+
+      const badge = document.getElementById("total-works-badge");
+      if (badge) badge.textContent = `${artworks.length} Works`;
+
+      container.innerHTML = "";
+      orderedPieces = [];
+
+      // --- A. Featured / Hero Diptych ---
+      const featured = artworks.filter((a) => a.featured);
+      featured.forEach((piece) => {
+        const idx = orderedPieces.push(piece) - 1;
+
+        const hero = document.createElement("section");
+        hero.className = "featured-piece group relative mb-12 rounded-xl overflow-hidden border border-teal-500/45 bg-[#12060f] shadow-2xl cursor-zoom-in transition hover:border-[#3cd0b2]";
+        hero.addEventListener("click", () => openLightbox(idx));
+
+        const imgWrapper = document.createElement("div");
+        imgWrapper.className = "relative overflow-hidden bg-[#0c040a]";
+
+        const img = document.createElement("img");
+        img.src = isSandbox ? buildSandboxPlate(piece) : piece.file;
+        img.alt = piece.title || "Featured piece";
+        img.className = "w-full max-h-[65vh] object-contain mx-auto transition duration-500 group-hover:scale-[1.01]";
+
+        const zoomHint = document.createElement("span");
+        zoomHint.className = "absolute top-3 right-3 px-3 py-1 rounded-full text-[11px] uppercase tracking-wider bg-[#160812]/85 text-[#3cd0b2] border border-teal-500/40 opacity-90 group-hover:opacity-100";
+        zoomHint.textContent = "Inspect Diptych";
+
+        imgWrapper.appendChild(img);
+        imgWrapper.appendChild(zoomHint);
+
+        const caption = document.createElement("div");
+        caption.className = "p-5 sm:p-6 text-center bg-gradient-to-b from-[#160812] to-[#200b1a]";
+
+        const phaseTag = document.createElement("div");
+        phaseTag.className = "text-[11px] uppercase tracking-[0.2em] text-[#3cd0b2] mb-1";
+        phaseTag.textContent = `Featured Arc • ${piece.phase}`;
+
+        const title = document.createElement("h2");
+        title.className = "serif-display text-2xl sm:text-3xl font-semibold text-neutral-100";
+        title.textContent = piece.title || "";
+
+        caption.appendChild(phaseTag);
+        caption.appendChild(title);
+
+        if (piece.caption) {
+          const desc = document.createElement("p");
+          desc.className = "mt-1.5 text-sm text-neutral-300/85 max-w-2xl mx-auto";
+          desc.textContent = piece.caption;
+          caption.appendChild(desc);
+        }
+
+        hero.appendChild(imgWrapper);
+        hero.appendChild(caption);
+        container.appendChild(hero);
+      });
+
+      // --- B. Sticky Phase Timeline Scrubber ---
+      const rest = artworks.filter((a) => !a.featured);
+      const activePhases = PHASE_ORDER.filter((p) => rest.some((a) => a.phase === p));
+
+      if (activePhases.length > 0) {
+        const nav = document.createElement("nav");
+        nav.className = "phase-nav -mx-4 sm:-mx-8 px-4 sm:px-8 py-3.5 mb-10 flex items-center justify-start sm:justify-center gap-5 sm:gap-8 overflow-x-auto";
+        nav.setAttribute("aria-label", "Ecological Phases");
+
+        activePhases.forEach((phase, i) => {
+          const link = document.createElement("a");
+          link.href = `#${phase.toLowerCase()}`;
+          link.dataset.phase = phase.toLowerCase();
+          link.dataset.phaseTitle = phase;
+          link.className = "phase-link whitespace-nowrap text-xs uppercase tracking-[0.14em] text-neutral-300/75 hover:text-neutral-100 py-1";
+          link.innerHTML = `<span class="text-[#3cd0b2] mr-1">0${i + 1}</span> ${phase}`;
+          nav.appendChild(link);
+        });
+
+        container.appendChild(nav);
+      }
+
+      // --- C. Phase-Grouped Exhibition Grids ---
+      activePhases.forEach((phase, phaseIdx) => {
+        const pieces = rest.filter((a) => a.phase === phase);
+
+        const section = document.createElement("section");
+        section.className = "phase-section my-14 scroll-mt-20";
+        section.id = phase.toLowerCase();
+        section.dataset.phaseTitle = phase;
+
+        const header = document.createElement("div");
+        header.className = "flex items-baseline justify-between border-b border-teal-500/25 pb-3 mb-6";
+
+        const heading = document.createElement("h2");
+        heading.className = "serif-display text-2xl sm:text-3xl tracking-wide text-neutral-100";
+        heading.innerHTML = `<span class="text-xs font-sans uppercase tracking-[0.2em] text-[#3cd0b2] mr-3 align-middle">Phase 0${phaseIdx + 1}</span>${phase}`;
+
+        const count = document.createElement("span");
+        count.className = "text-xs uppercase tracking-widest text-neutral-400";
+        count.textContent = `${pieces.length} ${pieces.length === 1 ? "work" : "works"}`;
+
+        header.appendChild(heading);
+        header.appendChild(count);
+        section.appendChild(header);
+
+        const grid = document.createElement("div");
+        grid.className = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5";
+
+        pieces.forEach((piece) => {
+          const idx = orderedPieces.push(piece) - 1;
+
+          const fig = document.createElement("figure");
+          fig.className = "art-piece group rounded-lg overflow-hidden bg-[#220c1c]/85 border border-teal-500/20 hover:border-[#3cd0b2]/75 p-2.5 flex flex-col shadow-lg";
+          fig.addEventListener("click", () => openLightbox(idx));
+
+          const imgFrame = document.createElement("div");
+          imgFrame.className = "w-full overflow-hidden rounded bg-[#10050d] flex items-center justify-center";
+
+          const img = document.createElement("img");
+          img.src = isSandbox ? buildSandboxPlate(piece) : piece.file;
+          img.alt = piece.title || phase;
+          img.loading = "lazy";
+          img.className = "w-full h-auto block object-cover";
+
+          imgFrame.appendChild(img);
+
+          const caption = document.createElement("figcaption");
+          caption.className = "mt-2.5 px-1 flex items-center justify-between gap-2";
+
+          const titleSpan = document.createElement("span");
+          titleSpan.className = "text-sm text-neutral-100 group-hover:text-[#45deb9] transition truncate";
+          titleSpan.textContent = piece.title || "";
+
+          const loupeIcon = document.createElement("span");
+          loupeIcon.className = "text-[11px] text-teal-400/70 group-hover:text-[#3cd0b2] transition shrink-0";
+          loupeIcon.textContent = "Loupe +";
+
+          caption.appendChild(titleSpan);
+          caption.appendChild(loupeIcon);
+
+          fig.appendChild(imgFrame);
+          fig.appendChild(caption);
+          grid.appendChild(fig);
+        });
+
+        section.appendChild(grid);
+        container.appendChild(section);
+      });
+
+      if (container.children.length === 0) {
+        container.innerHTML = "<p class='text-center text-neutral-400 py-12'>No pieces found in artworks.json.</p>";
+        return;
+      }
+
+      setupScrollObserver();
+      setupLightbox();
+    }
+
+    // =========================================================================
+    // 3. SCROLL OBSERVER (Syncs sticky phase bar & subtle ambient tone)
+    // =========================================================================
+    function setupScrollObserver() {
+      const sections = document.querySelectorAll(".phase-section");
+      const navLinks = document.querySelectorAll(".phase-link");
+      if (!sections.length || !navLinks.length) return;
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const id = entry.target.id;
+              const phaseTitle = entry.target.dataset.phaseTitle;
+
+              navLinks.forEach((link) => {
+                const isActive = link.dataset.phase === id;
+                link.classList.toggle("active", isActive);
+                if (isActive) {
+                  link.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+                }
+              });
+
+              if (phaseTitle && PHASE_AMBIENT[phaseTitle]) {
+                document.body.style.backgroundColor = PHASE_AMBIENT[phaseTitle];
+              }
+            }
+          });
+        },
+        { rootMargin: "-20% 0px -65% 0px" }
+      );
+
+      sections.forEach((sec) => observer.observe(sec));
+    }
+
+    // =========================================================================
+    // 4. DEEP-ZOOM PAN & ZOOM LIGHTBOX
+    // =========================================================================
+    function setupLightbox() {
+      if (document.getElementById("art-lightbox")) return;
+
+      const lb = document.createElement("div");
+      lb.id = "art-lightbox";
+      lb.className = "lightbox";
+      lb.innerHTML = `
+        <div class="flex items-center justify-between px-4 sm:px-6 py-3.5 bg-gradient-to-b from-[#12050e]/95 to-transparent z-10 text-xs">
+          <div class="flex items-center gap-3">
+            <span id="lb-counter" class="font-mono text-neutral-300"></span>
+            <span id="lb-zoom-readout" class="px-2 py-0.5 rounded bg-[#240d1e] border border-teal-500/30 text-[#3cd0b2] font-mono">100%</span>
+          </div>
+          <div class="flex items-center gap-1.5 sm:gap-2">
+            <button id="lb-zoom-out" class="px-3 py-1.5 rounded bg-[#220c1c]/90 hover:bg-[#2e1026] border border-teal-500/30 text-neutral-100 transition" title="Zoom Out (-)">−</button>
+            <button id="lb-zoom-in" class="px-3 py-1.5 rounded bg-[#220c1c]/90 hover:bg-[#2e1026] border border-teal-500/30 text-neutral-100 transition" title="Zoom In (+)">+</button>
+            <button id="lb-reset" class="px-3 py-1.5 rounded bg-[#220c1c]/90 hover:bg-[#2e1026] border border-teal-500/30 text-neutral-100 transition" title="Reset View (0)">Reset</button>
+            <button id="lb-close" class="ml-1 px-3 py-1.5 rounded bg-[#220c1c]/90 hover:border-[#3cd0b2] border border-teal-500/30 text-neutral-100 transition" title="Close (Esc)">✕ Close</button>
+          </div>
+        </div>
+
+        <button id="lb-prev" aria-label="Previous work" class="fixed left-3 sm:left-6 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full bg-[#220c1c]/85 hover:bg-[#2e1026] border border-teal-500/35 hover:border-[#3cd0b2] text-neutral-100 text-xl flex items-center justify-center transition">‹</button>
+
+        <div id="lb-stage" class="lb-stage">
+          <img id="lb-img" src="" alt="" draggable="false" />
+        </div>
+
+        <button id="lb-next" aria-label="Next work" class="fixed right-3 sm:right-6 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full bg-[#220c1c]/85 hover:bg-[#2e1026] border border-teal-500/35 hover:border-[#3cd0b2] text-neutral-100 text-xl flex items-center justify-center transition">›</button>
+
+        <div id="lb-footer" class="lb-footer px-6 py-4 bg-gradient-to-t from-[#12050e]/95 via-[#160812]/85 to-transparent text-center z-10">
+          <div id="lb-phase" class="text-[11px] uppercase tracking-[0.2em] text-[#3cd0b2]"></div>
+          <h3 id="lb-title" class="serif-display text-xl sm:text-2xl font-semibold text-neutral-100 mt-0.5"></h3>
+          <p id="lb-caption" class="text-xs sm:text-sm text-neutral-300/85 max-w-xl mx-auto mt-1"></p>
+        </div>
+      `;
+      document.body.appendChild(lb);
+
+      const stage = document.getElementById("lb-stage");
+
+      document.getElementById("lb-close").addEventListener("click", closeLightbox);
+      document.getElementById("lb-prev").addEventListener("click", () => stepLightbox(-1));
+      document.getElementById("lb-next").addEventListener("click", () => stepLightbox(1));
+      document.getElementById("lb-zoom-in").addEventListener("click", () => adjustZoom(0.5));
+      document.getElementById("lb-zoom-out").addEventListener("click", () => adjustZoom(-0.5));
+      document.getElementById("lb-reset").addEventListener("click", resetTransform);
+
+      // Mouse wheel zoom
+      stage.addEventListener("wheel", (e) => {
+        e.preventDefault();
+        const delta = e.deltaY < 0 ? 0.35 : -0.35;
+        adjustZoom(delta);
+      }, { passive: false });
+
+      // Double-click toggle zoom
+      stage.addEventListener("dblclick", () => {
+        if (scale > 1) {
+          resetTransform();
+        } else {
+          scale = 2.5;
+          applyTransform();
+        }
+      });
+
+      // Mouse drag to pan
+      stage.addEventListener("mousedown", (e) => {
+        if (scale <= 1) return;
+        isDragging = true;
+        startX = e.clientX - translateX;
+        startY = e.clientY - translateY;
+        stage.classList.add("dragging");
+      });
+
+      window.addEventListener("mousemove", (e) => {
+        if (!isDragging) return;
+        translateX = e.clientX - startX;
+        translateY = e.clientY - startY;
+        applyTransform();
+      });
+
+      window.addEventListener("mouseup", () => {
+        isDragging = false;
+        stage.classList.remove("dragging");
+      });
+
+      // Touch drag / swipe support
+      let touchStartX = 0;
+      let touchStartY = 0;
+      stage.addEventListener("touchstart", (e) => {
+        if (e.touches.length === 1) {
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+          if (scale > 1) {
+            isDragging = true;
+            startX = touchStartX - translateX;
+            startY = touchStartY - translateY;
+          }
+        }
+      }, { passive: true });
+
+      stage.addEventListener("touchmove", (e) => {
+        if (isDragging && e.touches.length === 1 && scale > 1) {
+          translateX = e.touches[0].clientX - startX;
+          translateY = e.touches[0].clientY - startY;
+          applyTransform();
+        }
+      }, { passive: true });
+
+      stage.addEventListener("touchend", (e) => {
+        if (scale === 1 && e.changedTouches.length === 1) {
+          const dx = e.changedTouches[0].clientX - touchStartX;
+          if (Math.abs(dx) > 55) {
+            stepLightbox(dx < 0 ? 1 : -1);
+          }
+        }
+        isDragging = false;
+      });
+
+      // Click empty backdrop when unzoomed to close
+      stage.addEventListener("click", (e) => {
+        if (e.target === stage && scale === 1) closeLightbox();
+      });
+
+      // Keyboard navigation
+      document.addEventListener("keydown", (e) => {
+        if (!lb.classList.contains("open")) return;
+        if (e.key === "Escape") closeLightbox();
+        if (e.key === "ArrowRight") stepLightbox(1);
+        if (e.key === "ArrowLeft") stepLightbox(-1);
+        if (e.key === "+" || e.key === "=") adjustZoom(0.5);
+        if (e.key === "-") adjustZoom(-0.5);
+        if (e.key === "0") resetTransform();
+      });
+    }
+
+    function openLightbox(index) {
+      currentIndex = index;
+      renderLightboxPiece();
+      document.getElementById("art-lightbox").classList.add("open");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeLightbox() {
+      document.getElementById("art-lightbox").classList.remove("open");
+      document.body.style.overflow = "";
+      resetTransform();
+    }
+
+    function stepLightbox(dir) {
+      currentIndex = (currentIndex + dir + orderedPieces.length) % orderedPieces.length;
+      renderLightboxPiece();
+    }
+
+    function renderLightboxPiece() {
+      resetTransform();
+      const piece = orderedPieces[currentIndex];
+      const isSandbox = window.location.protocol === "blob:" || window.location.protocol === "file:";
+      document.getElementById("lb-img").src = isSandbox ? buildSandboxPlate(piece) : piece.file;
+      document.getElementById("lb-img").alt = piece.title || "";
+      document.getElementById("lb-title").textContent = piece.title || "";
+      document.getElementById("lb-phase").textContent = piece.phase || "";
+      document.getElementById("lb-caption").textContent = piece.caption || "";
+      document.getElementById("lb-counter").textContent = `${currentIndex + 1} / ${orderedPieces.length}`;
+    }
+
+    function adjustZoom(delta) {
+      scale = Math.min(Math.max(1, scale + delta), 6);
+      if (scale === 1) {
+        translateX = 0;
+        translateY = 0;
+      }
+      applyTransform();
+    }
+
+    function resetTransform() {
+      scale = 1;
+      translateX = 0;
+      translateY = 0;
+      applyTransform();
+    }
+
+    function applyTransform() {
+      const img = document.getElementById("lb-img");
+      const footer = document.getElementById("lb-footer");
+      const readout = document.getElementById("lb-zoom-readout");
+      if (!img) return;
+
+      img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+      if (readout) readout.textContent = `${Math.round(scale * 100)}%`;
+      if (footer) {
+        footer.classList.toggle("hidden-on-zoom", scale > 1.05);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", initGallery);
+  </script>
 </body>
 </html>
